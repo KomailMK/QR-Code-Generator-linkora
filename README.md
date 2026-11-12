@@ -16,8 +16,8 @@ Linkora is a sleek, serverless web application for creating customizable, brande
 ### 1. Clone the Repository
 Clone the project to your local machine:
 ```bash
-git clone https://github.com/your-username/linkora-studio.git
-cd linkora-studio
+git clone https://github.com/KomailMK/QR-Code-Generator-linkora.git
+cd QR-Code-Generator-linkora
 ```
 
 ### 2. Set up the Supabase Database
