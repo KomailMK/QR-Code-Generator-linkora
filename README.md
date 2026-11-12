@@ -193,7 +193,7 @@ vercel --prod
 
 ---
 
-## Troubleshooting
+## Troubleshooting.
 
 *   **"Identifier 'supabase' has already been declared"**: Ensure your `supabase-client.js` uses `const supabaseClient = window.supabase.createClient(...)` to avoid clashing with the global `window.supabase` variable created by the CDN script.
 *   **Auto-login link throws 404 Not Found**: Verify that your `vercel.json` does not contain aggressive regex `rewrites`. Ensure the email template button `href` is hardcoded to your exact live Vercel domain.
