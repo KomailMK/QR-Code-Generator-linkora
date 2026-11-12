@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Turn any link into a QR code that looks like you. Customize the code, create a branded card, and download for free — no account required.">
+  <meta name="theme-color" content="#f7f8f3">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34' fill='none'%3E%3Crect width='34' height='34' rx='10' fill='%23CAFA69'/%3E%3Cg transform='translate(5,5)'%3E%3Cpath d='M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z' stroke='%23172016' stroke-width='2.4'/%3E%3Cpath d='M14 14h3v3h-3zM18 18h3v3h-3zM18 14h3' stroke='%23172016' stroke-width='2.4'/%3E%3C/g%3E%3C/svg%3E">
+  <title>Linkora: Your link. Your look.</title>
+  <link rel="stylesheet" href="/theme.css">
+  
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/vendor/qrcode.min.js" defer></script>
+  <script src="/vendor/html2canvas.min.js" defer></script>
+  <script src="/app.js" defer></script>
+  
+</head>
+<body>
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="/" id="brand-home" aria-label="Linkora home">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z" stroke="#172016" stroke-width="2.4"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM18 14h3" stroke="#172016" stroke-width="2.4"/></svg></span>
+      <span class="brand-word">linkora<span>.</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Main navigation" id="public-nav">
+      <a class="btn btn-quiet" href="#studio">QR studio</a>
+      <a class="btn btn-quiet" href="#how-it-works">How it works</a>
+      <a class="btn btn-quiet" href="#faq">FAQ</a>
+    </nav>
+    <nav class="nav-links hidden" aria-label="Account navigation" id="account-nav">
+      <button class="btn btn-quiet active" id="show-studio" type="button">Studio</button>
+      <button class="btn btn-quiet" id="show-history" type="button">My QR codes</button>
+      <button class="btn btn-quiet" id="show-profile" type="button">Profile</button>
+    </nav>
+    <div class="nav-actions">
+      <a href="/login" class="btn btn-outline" id="header-login">Log in</a>
+      <a href="#studio" class="btn btn-dark" id="header-create">Create a QR <span aria-hidden="true">→</span></a>
+      <div class="signed-user hidden" id="header-user" role="button" tabindex="0" aria-label="Open profile">
+        <span class="avatar-dot" id="header-avatar">L</span>
+        <span id="header-name">My workspace</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="public-content" id="public-content">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="fade-up">
+        <span class="eyebrow">A little more you in every scan</span>
+        <h1 class="display">Your link.<br>Your <em>look.</em><br>One scan away.</h1>
+        <p class="hero-copy">Turn any link into a QR code worth showing off. Pick the platform, make the card yours, and download in seconds. No account. No fuss.</p>
+        <div class="hero-ctas">
+          <a href="#studio" class="btn btn-dark" id="hero-create">Make your first QR <span aria-hidden="true">→</span></a>
+          <a href="#how-it-works" class="btn btn-outline">See how it works <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="proof-row">
+          <span class="proof-pill"><b>Free to create</b> — no signup needed</span>
+          <span class="proof-pill"><span class="note-swatch"></span> Your design, your rules</span>
+        </div>
+      </div>
+      <div class="hero-art fade-up" style="animation-delay:.12s" aria-label="A preview of a custom QR code card">
+        <div class="float-note top"><span class="note-swatch"></span> Your brand, your colors</div>
+        <div class="art-card">
+          <div class="art-head"><b>linkora.</b><span>SCAN ME ↗</span></div>
+          <div class="art-qr">
+            <svg viewBox="0 0 180 180" aria-hidden="true" shape-rendering="crispEdges"><rect width="180" height="180" fill="#fff"/><g fill="#1b2419"><path d="M8 8h48v48H8zm8 8v32h32V16zM20 20h24v24H20zM124 8h48v48h-48zm8 8v32h32V16zM136 20h24v24h-24zM8 124h48v48H8zm8 8v32h32v-32zM20 136h24v24H20z"/><path d="M72 8h8v8h-8zM88 8h8v16h-8zM104 16h8v8h-8zM72 32h16v8H72zM96 32h8v16h-8zM72 48h8v8h-8zM64 64h8v8h-8zM80 64h8v8h-8zM96 64h8v8h-8zM112 64h8v8h-8zM128 64h8v8h-8zM144 64h8v8h-8zM160 64h8v8h-8zM64 80h8v8h-8zM80 80h24v8H80zM120 80h8v8h-8zM136 80h8v8h-8zM160 80h8v8h-8zM64 96h16v8H64zM88 96h8v8h-8zM104 96h8v8h-8zM128 96h8v8h-8zM144 96h24v8h-24zM72 112h8v8h-8zM88 112h16v8H88zM112 112h8v8h-8zM128 112h8v8h-8zM144 112h8v8h-8zM64 128h8v8h-8zM80 128h8v8h-8zM96 128h8v8h-8zM112 136h8v8h-8zM128 128h8v8h-8zM144 136h8v8h-8zM160 128h8v16h-8zM64 152h8v8h-8zM80 152h16v8H80zM104 152h8v16h-8zM120 152h8v8h-8zM136 152h8v8h-8zM152 152h16v8h-16zM72 168h8v4h-8zM128 168h8v4h-8z"/></g></svg>
+          </div>
+          <div class="art-foot"><span>DESIGNED TO BE SCANNED</span><span>✦ L.</span></div>
+        </div>
+        <div class="float-note bottom"><span style="font-size:17px">✦</span> Download. Print. Share.</div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container studio-section" id="studio">
+    <div class="section-heading">
+      <div><span class="eyebrow">The QR studio</span><h2>Make something scan-worthy.</h2></div>
+      <p>Changes show up in the preview as you go.</p>
+    </div>
+
+    <div class="studio-shell">
+      <section class="panel editor-panel" aria-label="QR code settings">
+        <div class="panel-top">
+          <div class="panel-title"><span class="step-num">01</span> Start with your link</div>
+          <span class="tiny-label">THE DESTINATION</span>
+        </div>
+
+        <div class="field">
+          <label for="url-input">Paste the link you want people to open</label>
+          <div class="input-wrap">
+            <span class="input-icon" aria-hidden="true">🔗</span>
+            <input class="input input-with-icon" id="url-input" type="url" inputmode="url" placeholder="https://your-link-here.com" maxlength="2048" autocomplete="url">
+          </div>
+          <div class="field-hint">We encode your destination directly into the QR code. Use a full URL for the smoothest scan.</div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Where is the link from?</span>
+          <div class="platform-grid" id="platform-grid">
+            <button type="button" class="platform-option active" data-platform="Website"><span class="platform-icon">🌐</span><span>Website</span></button>
+            <button type="button" class="platform-option" data-platform="YouTube"><span class="platform-icon">▶</span><span>YouTube</span></button>
+            <button type="button" class="platform-option" data-platform="Instagram">
+              <span class="platform-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+              </span>
+              <span>Instagram</span>
+            </button>
+            <button type="button" class="platform-option" data-platform="LinkedIn"><span class="platform-icon">in</span><span>LinkedIn</span></button>
+            <button type="button" class="platform-option" data-platform="TikTok">
+              <span class="platform-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+              </span>
+              <span>TikTok</span>
+            </button>
+            <button type="button" class="platform-option" data-platform="Facebook"><span class="platform-icon">f</span><span>Facebook</span></button>
+            <button type="button" class="platform-option" data-platform="X"><span class="platform-icon">𝕏</span><span>X</span></button>
+            <button type="button" class="platform-option" data-platform="WhatsApp">
+              <span class="platform-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35m-5.42 7.4h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88m8.41-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.33.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.33 11.89-11.89a11.82 11.82 0 0 0-3.48-8.41"/></svg>
+              </span>
+              <span>WhatsApp</span>
+            </button>
+            <button type="button" class="platform-option" data-platform="Spotify">
+              <span class="platform-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+              </span>
+              <span>Spotify</span>
+            </button>
+            <button type="button" class="platform-option" data-platform="Other"><span class="platform-icon">✦</span><span>Other</span></button>
+          </div>
+          <div class="platform-custom hidden" id="custom-platform-wrap">
+            <input class="input" id="custom-platform" type="text" maxlength="45" placeholder="Name this platform (e.g. portfolio)">
+          </div>
+          <div class="field-hint">This labels the card; your link determines where the QR code sends people.</div>
+        </div>
+
+        <div class="field">
+          <label for="card-title">Card headline</label>
+          <input class="input" id="card-title" type="text" maxlength="70" value="Scan to connect" placeholder="Scan to connect">
+        </div>
+
+        <div class="field">
+          <label for="card-subtitle">A little context <span class="muted" style="font-weight:400">(optional)</span></label>
+          <input class="input" id="card-subtitle" type="text" maxlength="100" value="Your next click starts here." placeholder="Add a short note">
+        </div>
+
+        <div class="rule"></div>
+
+        <div class="panel-top">
+          <div class="panel-title"><span class="step-num">02</span> Give it your style</div>
+          <span class="tiny-label">MAKE IT YOURS</span>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Card layout</span>
+          <div class="card-style-grid" id="style-grid">
+            <button class="style-option active" type="button" data-style="minimal"><span class="style-thumb"><i class="thumb-qr"></i></span><strong>Minimal</strong></button>
+            <button class="style-option" type="button" data-style="spotlight"><span class="style-thumb spotlight"><i class="thumb-qr"></i></span><strong>Spotlight</strong></button>
+            <button class="style-option" type="button" data-style="gradient"><span class="style-thumb gradient"><i class="thumb-qr"></i></span><strong>Soft blend</strong></button>
+            <button class="style-option" type="button" data-style="frame"><span class="style-thumb frame"><i class="thumb-qr"></i></span><strong>Framed</strong></button>
+            <button class="style-option" type="button" data-style="navy"><span class="style-thumb navy"><i class="thumb-qr"></i></span><strong>Navy</strong></button>
+            <button class="style-option" type="button" data-style="purple"><span class="style-thumb purple"><i class="thumb-qr"></i></span><strong>Purple</strong></button>
+            <button class="style-option" type="button" data-style="pink"><span class="style-thumb pink"><i class="thumb-qr"></i></span><strong>Soft pink</strong></button>
+            <button class="style-option" type="button" data-style="blue"><span class="style-thumb blue"><i class="thumb-qr"></i></span><strong>Sky blue</strong></button>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field">
+            <label for="qr-color">QR code color</label>
+            <label class="color-field" for="qr-color">
+              <input type="color" id="qr-color" value="#1B2419">
+              <code id="qr-color-value">#1B2419</code>
+            </label>
+          </div>
+          <div class="field">
+            <label for="qr-bg">QR background</label>
+            <label class="color-field" for="qr-bg">
+              <input type="color" id="qr-bg" value="#FFFFFF">
+              <code id="qr-bg-value">#FFFFFF</code>
+            </label>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field">
+            <label for="card-bg">Card background</label>
+            <label class="color-field" for="card-bg">
+              <input type="color" id="card-bg" value="#FFFFFF">
+              <code id="card-bg-value">#FFFFFF</code>
+            </label>
+          </div>
+          <div class="field">
+            <label for="accent-color">Accent color</label>
+            <label class="color-field" for="accent-color">
+              <input type="color" id="accent-color" value="#A2CB4B">
+              <code id="accent-color-value">#A2CB4B</code>
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="card-text-color">Card text color</label>
+          <label class="color-field" for="card-text-color">
+            <input type="color" id="card-text-color" value="#171A17">
+            <code id="card-text-color-value">#171A17</code>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <strong>QR code size</strong>
+            <small>Keep enough room for a clean scan.</small>
+          </div>
+          <div class="range-line">
+            <input type="range" id="qr-size" min="150" max="230" step="10" value="190">
+            <span id="qr-size-value">190 px</span>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <strong>Show the destination on the card</strong>
+            <small>Helpful for people who want to check the link first.</small>
+          </div>
+          <input type="checkbox" class="switch" id="show-url" checked>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <strong>Show Linkora signature</strong>
+            <small>A subtle footer on your downloadable card.</small>
+          </div>
+          <input type="checkbox" class="switch" id="show-brand" checked>
+        </div>
+      </section>
+
+      <aside class="panel preview-panel" aria-label="Live QR card preview">
+        <div class="preview-head">
+          <h3>Live card preview</h3>
+          <span class="live-tag">Ready to scan</span>
+        </div>
+
+        <div class="preview-stage">
+          <div class="qr-card-preview minimal" id="qr-card-preview">
+            <div class="preview-platform" id="preview-platform">
+              <span class="preview-platform-icon" id="preview-platform-icon">🌐</span>
+              <p class="preview-kicker" id="preview-kicker">WEBSITE</p>
+            </div>
+            <h4 class="preview-title" id="preview-title">Scan to connect</h4>
+            <p class="preview-subtitle" id="preview-subtitle">Your next click starts here.</p>
+            <div class="preview-qr-holder" id="preview-qr-holder"></div>
+            <div class="preview-url" id="preview-url">your-link-here.com</div>
+            <div class="preview-footer" id="preview-footer">
+              <b>MADE TO BE SHARED</b>
+              <span id="preview-brand">LINKORA ✳</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-actions">
+          <button type="button" class="btn btn-dark" id="download-card-btn">↓ Download PNG</button>
+          <button type="button" class="btn btn-outline" id="save-history-btn">♡ Save QR</button>
+        </div>
+
+        <div class="preview-subactions">
+          <button type="button" class="btn btn-quiet" id="copy-link-btn">Copy destination link ↗</button>
+        </div>
+
+        <p class="preview-note">PNG export · High-resolution card · No account needed to download</p>
+
+        <div class="stats-strip">
+          <div class="stat-box">
+            <strong id="stat-created">0</strong>
+            <span>QR codes created</span>
+          </div>
+          <div class="stat-box">
+            <strong id="stat-platforms">0</strong>
+            <span>Platforms used</span>
+          </div>
+          <div class="stat-box">
+            <strong id="stat-last">—</strong>
+            <span>Last created</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <section class="feature-section" id="how-it-works">
+    <div class="container">
+      <div class="feature-intro">
+        <span class="eyebrow">Simple by design</span>
+        <h2>From raw link to print-ready card in four steps.</h2>
+        <p>No bloated dashboards or expiring redirect links. Linkora encodes your destination directly so your QR codes work forever.</p>
+      </div>
+      <div class="steps-grid">
+        <article class="step-card">
+          <div class="step-icon">01</div>
+          <small>STEP ONE</small>
+          <h3>Drop in your URL</h3>
+          <p>Paste any website, social profile, video, playlist, or contact link you want people to open.</p>
+        </article>
+        <article class="step-card">
+          <div class="step-icon">02</div>
+          <small>STEP TWO</small>
+          <h3>Pick a platform preset</h3>
+          <p>Choose YouTube, Instagram, LinkedIn, Spotify, or your own label to automatically tune colors and copy.</p>
+        </article>
+        <article class="step-card">
+          <div class="step-icon">03</div>
+          <small>STEP THREE</small>
+          <h3>Customize the look</h3>
+          <p>Switch between eight card themes, fine-tune ink and surface colors, and adjust the QR code size.</p>
+        </article>
+        <article class="step-card">
+          <div class="step-icon">04</div>
+          <small>STEP FOUR</small>
+          <h3>Download or save</h3>
+          <p>Export a crisp, high-DPI PNG card ready for print or social sharing, or save it to your account.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section" id="faq">
+    <div class="container faq-layout">
+      <div>
+        <span class="eyebrow">Questions &amp; Answers</span>
+        <h2>Everything you need to know.</h2>
+        <p class="muted">Clear answers on how Linkora QR codes work, how they're stored, and how to get the best scan reliability.</p>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary>Do Linkora QR codes ever expire?</summary>
+          <p>Never. We encode your destination URL directly into the QR pattern rather than routing through a paid redirect proxy. As long as your destination link is live, the QR code will work forever.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Do I need an account to create and download a QR card?</summary>
+          <p>No account is required to design and download high-resolution PNG cards. Signing in is completely optional and lets you save designs to your library and sync your brand defaults.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What color contrast works best for phone cameras?</summary>
+          <p>Keep the QR code ink noticeably darker than the QR background paper. Our built-in platform presets and themes are pre-tested for instant recognition on iOS and Android cameras.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I re-edit or re-download my saved QR codes later?</summary>
+          <p>Yes. When signed in, open "My QR codes" in the top bar to load any saved card back into the studio or download its full branded PNG card with one click.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="container app-view hidden" id="history-view" aria-label="Saved QR codes">
+  <div class="view-header">
+    <div>
+      <span class="eyebrow">Your library</span>
+      <h1>My QR codes</h1>
+      <p>Reload any saved design into the studio or download its branded card PNG immediately.</p>
+    </div>
+    <button type="button" class="btn btn-dark" id="history-new-btn">+ Create new QR</button>
+  </div>
+
+  <div class="loading-line hidden" id="history-loading"></div>
+  <div class="history-list" id="history-list"></div>
+
+  <div class="empty-state hidden" id="history-empty">
+    <div class="empty-mark">✦</div>
+    <h3>No saved QR codes yet</h3>
+    <p>Design a QR card in the studio and click "♡ Save QR" to keep your links organized in one place.</p>
+    <button type="button" class="btn btn-dark" id="empty-create-btn">Open QR Studio →</button>
+  </div>
+</section>
+
+<section class="container app-view hidden" id="profile-view" aria-label="Profile settings">
+  <div class="view-header">
+    <div>
+      <span class="eyebrow">Workspace settings</span>
+      <h1>Your profile</h1>
+      <p>Set your default brand details and preferred accent color.</p>
+    </div>
+    <button type="button" class="btn btn-outline" id="logout-btn">Sign out</button>
+  </div>
+
+  <div class="profile-layout">
+    <aside class="profile-card">
+      <div class="profile-avatar" id="profile-avatar">L</div>
+      <h2 id="profile-card-name">Linkora Creator</h2>
+      <p id="profile-card-bio">Custom QR cards and branded links.</p>
+      <p class="profile-email" id="profile-card-email"></p>
+    </aside>
+
+    <form class="panel profile-form" id="profile-form" novalidate>
+      <h3>Brand defaults</h3>
+      <div class="field">
+        <label for="profile-name">Display name</label>
+        <input class="input" id="profile-name" type="text" maxlength="80" placeholder="Your name or studio">
+      </div>
+      <div class="field">
+        <label for="profile-bio">Short bio</label>
+        <textarea class="textarea" id="profile-bio" maxlength="220" placeholder="A short line about what you create or share"></textarea>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label for="profile-website">Default website URL</label>
+          <input class="input" id="profile-website" type="url" maxlength="300" placeholder="https://example.com">
+        </div>
+        <div class="field">
+          <label for="profile-accent">Default accent color</label>
+          <label class="color-field" for="profile-accent">
+            <input type="color" id="profile-accent" value="#CAFA69">
+            <code id="profile-accent-value">#CAFA69</code>
+          </label>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button type="submit" class="btn btn-dark" id="profile-save-btn">Save profile</button>
+        <button type="button" class="btn btn-outline" id="apply-profile-preset-btn">Apply defaults to Studio</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <span>© 2026 Linkora QR Studio. Made for Links Worth Sharing.</span>
+    <div class="footer-links">
+      <a href="#studio" data-nav-studio>QR Studio</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#faq">FAQ</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

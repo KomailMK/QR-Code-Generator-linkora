@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Turn any link into a QR code that looks like you. Customize the code, create a branded card, and download for free — no account required.">
+  <meta name="theme-color" content="#f7f8f3">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34' fill='none'%3E%3Crect width='34' height='34' rx='10' fill='%23CAFA69'/%3E%3Cg transform='translate(5,5)'%3E%3Cpath d='M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z' stroke='%23172016' stroke-width='2.4'/%3E%3Cpath d='M14 14h3v3h-3zM18 18h3v3h-3zM18 14h3' stroke='%23172016' stroke-width='2.4'/%3E%3C/g%3E%3C/svg%3E">
+  <title>Sign in: Linkora</title>
+  <link rel="stylesheet" href="/theme.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/vendor/qrcode.min.js" defer></script>
+  <script src="/vendor/html2canvas.min.js" defer></script>
+  <script src="/app.js" defer></script>
+  
+  <style>
+  body{min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 85% 10%,rgba(202,250,105,.23),transparent 32%),var(--bg)}
+  .login-wrap{width:min(100%,430px)}.login-top{display:flex;justify-content:center;margin-bottom:27px}.login-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:34px;box-shadow:var(--shadow)}.login-card h1{font:600 34px/1.06 var(--display);letter-spacing:-.055em;margin:12px 0 11px}.login-card .intro{font-size:13px;color:var(--muted);margin:0 0 25px;line-height:1.7}.login-card input,.login-card button{width:100%;min-height:46px;border-radius:12px}.login-card input{padding:0 14px;border:1px solid #dfe4d9;background:#fcfdfb;color:var(--ink);margin-bottom:9px}.login-card button{border:0;margin-top:9px}.login-card button:disabled{opacity:.5;cursor:wait}.login-card .alt{background:transparent;color:#687064;border:1px solid var(--line)}.login-msg{font-size:12px;min-height:18px;color:#6d7568;line-height:1.6;margin:13px 0 0}.login-msg.err{color:#a6382d}.login-foot{font-size:11px;color:#899084;text-align:center;margin:18px 0 0}.login-back{display:block;text-align:center;color:#66715b;font-size:12px;margin-top:18px}.login-back:hover{color:#1b2419}.login-logo{display:flex;align-items:center;gap:9px;font:700 20px var(--display);letter-spacing:-.06em}.login-logo .brand-mark{width:36px;height:36px}.login-top p{font-size:11px;color:#7f8877;margin:8px 0 0}@media(max-width:480px){.login-card{padding:25px 21px}.login-card h1{font-size:30px}}
+  </style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-top"><a class="login-logo" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z" stroke="#172016" stroke-width="2.4"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z" stroke="#172016" stroke-width="2.4"/></svg></span>linkora<span style="font-weight:400">.</span></a></div>
+  <main class="login-card">
+    <span class="eyebrow">Your links, in one place</span>
+    <h1 id="title">Welcome back.</h1>
+    <p class="intro" id="sub">Sign in to keep your QR designs, downloads, and profile together. We’ll email a one-time code — no password to remember.</p>
+    
+    <form id="form" novalidate>
+      <div id="email-row"><label for="email" style="display:block;font-weight:700;font-size:12px;margin:0 0 7px">Email address</label><input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="username webauthn" autocapitalize="off" autocorrect="off" spellcheck="false" required></div>
+      <div id="code-row" hidden><label for="code" style="display:block;font-weight:700;font-size:12px;margin:0 0 7px">Your sign-in code</label><input id="code" name="code" inputmode="numeric" type="text" placeholder="6-digit code" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*"></div>
+      <button class="btn btn-dark" id="submit" type="submit">Continue with email</button>
+      <button class="btn alt" id="back" type="button" hidden>Use a different email</button>
+    </form>
+
+    <!-- New Passkey Login Section -->
+    <div id="passkey-login" hidden style="margin-top: 24px;">
+      <div style="height: 1px; background: var(--line); margin: 0 0 20px;"></div>
+      <button class="btn btn-lime" id="btn-passkey-login" type="button" style="width: 100%;">Sign in with Passkey</button>
+    </div>
+
+    <div id="passkey" hidden><p class="intro" style="margin:16px 0 7px">Add a passkey and next time you can sign in with your fingerprint, face, or screen lock.</p><button class="btn btn-lime" id="passkey-add" type="button">Add a passkey</button><button class="btn alt" id="passkey-skip" type="button">Not now</button></div>
+    <p class="login-msg" id="msg" role="status" aria-live="polite"></p>
+    <p class="login-foot">Creating an account is free. QR generation and downloads work without signing in.</p>
+  </main>
+  <a href="/" class="login-back">← Back to the QR studio</a>
+</div>
+
+<script>
+(function(){
+  var A=window.hatchable&&window.hatchable.auth;
+  var form=document.getElementById('form'),emailRow=document.getElementById('email-row'),codeRow=document.getElementById('code-row');
+  var emailEl=document.getElementById('email'),codeEl=document.getElementById('code'),submit=document.getElementById('submit'),back=document.getElementById('back');
+  var msg=document.getElementById('msg'),sub=document.getElementById('sub'),title=document.getElementById('title');
+  var passkey=document.getElementById('passkey'),passkeyAdd=document.getElementById('passkey-add'),passkeySkip=document.getElementById('passkey-skip');
+  var pkLoginBox=document.getElementById('passkey-login'),pkLoginBtn=document.getElementById('btn-passkey-login');
+  var step='email',hasPasskey=false;
+  
+  function safeNext(){var raw=new URLSearchParams(location.search).get('next')||'/';if(typeof raw!=='string'||raw.charAt(0)!=='/'||raw.charAt(1)==='/')return '/';for(var i=0;i<raw.length;i++){var c=raw.charCodeAt(i);if(c<32||c===92||c===127)return '/';}return raw;}
+  function say(t,kind){msg.textContent=t||'';msg.className='login-msg '+(kind||'');}
+  function go(){location.replace(safeNext());}
+  function wasDeclined(){try{return localStorage.getItem('linkora_passkey_offer_declined')==='1';}catch(e){return false;}}
+  function decline(){try{localStorage.setItem('linkora_passkey_offer_declined','1');}catch(e){}}
+  function finish(){if(hasPasskey||wasDeclined()||!A.registerPasskey||!A.supportsPasskeys||!A.supportsPasskeys()){go();return;}form.hidden=true;pkLoginBox.hidden=true;title.textContent='You’re signed in.';sub.textContent='Your QR studio is ready. One quick optional step can make your next sign-in even easier.';passkey.hidden=false;passkeyAdd.focus();}
+  
+  if(!A){say('Sign-in is unavailable right now. Please refresh.','err');submit.disabled=true;return;}
+  A.getSession().then(function(s){if(s&&s.user)go();}).catch(function(){});
+  
+  if(A.supportsPasskeys && A.supportsPasskeys()) {
+    pkLoginBox.hidden = false;
+    pkLoginBtn.addEventListener('click', function() {
+      say('');
+      pkLoginBtn.disabled = true;
+      pkLoginBtn.textContent = 'Waiting for passkey...';
+      A.signInWithPasskey().then(function(d) {
+        if (d && d.user) { go(); }
+        else { say('Passkey sign-in cancelled.', 'err'); pkLoginBtn.disabled = false; pkLoginBtn.textContent = 'Sign in with Passkey'; }
+      }).catch(function(err) {
+        say(err && err.message || 'Passkey sign-in failed.', 'err');
+        pkLoginBtn.disabled = false;
+        pkLoginBtn.textContent = 'Sign in with Passkey';
+      });
+    });
+  }
+
+  passkeyAdd.addEventListener('click',function(){passkeyAdd.disabled=true;passkeySkip.disabled=true;say('');A.registerPasskey().then(function(result){if(!result)decline();go();}).catch(function(err){passkeyAdd.disabled=false;passkeySkip.disabled=false;say(err&&err.message||'Could not save the passkey. You can continue without one.','err');});});
+  passkeySkip.addEventListener('click',function(){decline();go();});
+  
+  back.addEventListener('click',function(){step='email';emailRow.hidden=false;codeRow.hidden=true;back.hidden=true;if(A.supportsPasskeys&&A.supportsPasskeys())pkLoginBox.hidden=false;submit.textContent='Continue with email';sub.textContent='Sign in to keep your QR designs, downloads, and profile together. We’ll email a one-time code — no password to remember.';say('');emailEl.focus();});
+  
+  form.addEventListener('submit',function(e){
+    e.preventDefault();if(step==='passkey')return;submit.disabled=true;
+    if(step==='email'){
+      var email=(emailEl.value||'').trim();if(!email){submit.disabled=false;say('Enter your email address.','err');return;}
+      A.startLogin({email:email}).then(function(result){
+        hasPasskey=!!(result&&result.has_passkey);
+        return 'code';
+      }).then(function(next){
+        if(next!=='code')return;
+        step='code';emailRow.hidden=true;codeRow.hidden=false;back.hidden=false;pkLoginBox.hidden=true;submit.textContent='Verify and sign in';sub.textContent='Enter the six-digit code we sent to '+emailEl.value.trim()+'.';say('Code sent. Check your inbox, including spam.');codeEl.focus();
+      }).catch(function(err){say(err&&err.status===429?'Too many attempts. Try again in a moment.':(err&&err.message||'Could not send the code. Check your email address and try again.'),'err');}).then(function(){submit.disabled=false;});
+      return;
+    }
+    A.verifyCode({email:(emailEl.value||'').trim(),code:(codeEl.value||'').trim()}).then(function(d){if(d&&d.user){finish();return;}say('That code did not work. Try again.','err');}).catch(function(err){say(err&&err.message||'That code did not work. Try again.','err');}).then(function(){submit.disabled=false;});
+  });
+
+  var params = new URLSearchParams(window.location.search);
+  var urlCode = params.get('code') || params.get('token');
+  var urlEmail = params.get('email');
+
+  if (urlCode && urlEmail) {
+    emailEl.value = urlEmail;
+    codeEl.value = urlCode;
+    step = 'code';
+    emailRow.hidden = true;
+    codeRow.hidden = false;
+    back.hidden = false;
+    pkLoginBox.hidden = true;
+    submit.disabled = true;
+    submit.textContent = 'Verifying...';
+    say('Verifying your sign-in link...');
+
+    A.verifyCode({ email: urlEmail, code: urlCode })
+      .then(function(d) {
+        if (d && d.user) { finish(); return; }
+        say('That link is invalid or expired. Please try again.', 'err');
+      })
+      .catch(function(err) {
+        say(err && err.message || 'That link is invalid or expired.', 'err');
+      })
+      .then(function() {
+        submit.disabled = false;
+        submit.textContent = 'Verify and sign in';
+      });
+  } else {
+    emailEl.focus();
+  }
+})();
+</script>
+</body>
+</html>
